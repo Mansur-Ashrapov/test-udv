@@ -17,7 +17,7 @@ async def get_valutes_names(redis: aioredis.Redis):
     return valutes_names
 
 
-# получаем список классов Valute
+# получаем словарь с данными о валютах
 async def get_valutes_data(*args, redis: aioredis.Redis):
     result = {}
     for name in args:
