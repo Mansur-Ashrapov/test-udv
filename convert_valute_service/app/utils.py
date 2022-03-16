@@ -7,8 +7,7 @@ sys.path.append(str(package_root_directory))
 
 from aiohttp import web
 from typing import List
-
-from app.schemas import Valute
+from json import JSONDecodeError
 
 
 def convert_valute(value_from: float, value_to: float, amount) -> float:
@@ -17,32 +16,28 @@ def convert_valute(value_from: float, value_to: float, amount) -> float:
 
 
 # функция для валидации списка курса валют 
-def get_valutes_from_json(data: dict) -> List[Valute]:
-    result = []
-
-    for key, item in data.items():
-        valute = Valute(
-            name=key, 
-            value=item['Value'],
-            actual_date=item['ActualDate']    
-        )
-        result.append(valute)
-
-    return result
-
-# переводим Valute в словарь для удобства сравнения
-def list_valutes_to_dict(valute_list: List[Valute]):
+async def get_valutes_from_json(data) -> dict:
     result = {}
-    for valute in valute_list:
-        result[valute.name] = {
-            'Value': valute.value,
-            'ActualDate': valute.actual_date
-        }
+
+    try:
+        data = dict(await data.json())
+        for key, item in data.items():
+            result[key] = { 
+                'Value': float(item['Value']),
+                'ActualDate': int(item['ActualDate'])    
+            }
+    
+    except JSONDecodeError:
+        return []
+    except KeyError as e:
+        raise web.HTTPBadRequest(reason='Данные введены неправильно', text={e: 'осутствует'}, content_type='application/json')
+    except ValueError:
+        raise web.HTTPBadRequest(reason='Данные введены неправильно')
+
     return result
 
 
-def compare_valutes(valutes_db: List[Valute], valutes_req: dict):
-    valutes_db = list_valutes_to_dict(valutes_db)
+def compare_valutes(valutes_db: List[dict], valutes_req: dict):
     
     result_dict = {}
     to_compare = []

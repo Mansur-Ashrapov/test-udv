@@ -9,8 +9,7 @@ sys.path.append(str(package_root_directory))
 from aiohttp import web
 
 from app.redis_utils import get_valutes_data, get_valutes_names, set_new_valutes
-from app.validators import post_valutes_validator
-from app.utils import compare_valutes
+from app.utils import compare_valutes, get_valutes_from_json
 
 
 async def update_db(request):
@@ -32,8 +31,8 @@ async def update_db(request):
     # получаем доступ к бд
     redis = request.app['db']
     
-    # провалидируем полученное тело запроса
-    data = await post_valutes_validator(request)
+    # получим данные из запроса
+    data = await get_valutes_from_json(request)
     
     # достаем merge
     try:
@@ -71,7 +70,7 @@ async def update_db(request):
 
             await set_new_valutes(valutes_to_db, redis)
 
-            return web.Response(text=f'1 {data}')
+            return web.Response(status=200)
         elif data != []: 
             await set_new_valutes(data, redis=redis)
             return web.Response(status=200)

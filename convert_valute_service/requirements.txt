@@ -1,5 +1,4 @@
 aiohttp==3.8.1
-pydantic==1.9.0
 aioredis==2.0.1
 pytest==7.1.0
 pytest-aiohttp==1.0.4

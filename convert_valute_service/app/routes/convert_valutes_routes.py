@@ -9,8 +9,7 @@ sys.path.append(str(package_root_directory))
 from aiohttp import web
 from pydantic import ValidationError
 
-from app.schemas import ConvertFromTo
-from app.redis_utils import get_valutes_values_or_404, get_valutes_names
+from app.redis_utils import get_valutes_values, get_valutes_names
 from app.utils import convert_valute
 
 
@@ -26,28 +25,38 @@ async def get_convert_valute(request):
     # получаем даные из параметров запроса
     query_params = request.rel_url.query
     try:
-        data = ConvertFromTo(
-            valute_from=query_params['from'],
-            valute_to=query_params['to'],
-            amount=float(query_params['amount'])
-        )
-    except (KeyError, ValidationError) as e :
+        data = {
+            'valute_from': query_params['from'],
+            'valute_to': query_params['to'],
+            'amount': float(query_params['amount'])
+        }
+    except KeyError as e :
         raise web.HTTPBadRequest(body='Параметры запроса неправильны')
+    except ValueError as e:
+        raise web.HTTPBadRequest(body='Параметр amount должен быть float')
+
 
     # получаем значение курса каждой валюты из базы данных
     # если такой валюты не будет в бд, то выйдет ошибка ValidationError
     # так как не будет данных для класса Valute
     try: 
-        value_from, value_to = await get_valutes_values_or_404(
-            data.valute_from,
-            data.valute_to,
+        values = await get_valutes_values(
+            data['valute_from'],
+            data['valute_to'],
             redis                                            
         )
-    except (ValidationError, KeyError) as e:
-        raise web.HTTPNotFound(reason='Данные об этих валютах отсутвуют')
+        value_from = values[0]
+        value_to = values[1]
+
+    except ValidationError as e:
+        raise web.HTTPBadRequest(reason=e)
+    except KeyError as e:
+        raise web.HTTPNotFound(reason=e)
+        
+
 
     # конвертируем сумму
-    converted_amount = convert_valute(value_from, value_to, data.amount)
+    converted_amount = convert_valute(value_from, value_to, data['amount'])
 
     response = {
         'ConvertedAmount': converted_amount
@@ -56,14 +65,14 @@ async def get_convert_valute(request):
     return web.json_response(response)
 
 
-# async def get_accessible_valutes_names(request):
-#     """
-#     Получаем доступные для конвертации валюты
-#     """
+async def get_accessible_valutes_names(request):
+    """
+    Получаем доступные для конвертации валюты
+    """
 
-#     # получаем доступ к бд
-#     redis = request.app['db']
+    # получаем доступ к бд
+    redis = request.app['db']
 
-#     valutes_name = await get_valutes_names(redis=redis)
+    valutes_name = await get_valutes_names(redis=redis)
     
-#     return web.json_response(data=valutes_name)
+    return web.json_response(data=valutes_name)
