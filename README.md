@@ -35,3 +35,5 @@ json_request = {
 HTTPBadRequest
 400: 'Необходим параметр merge'
 
+### GET /valutes
+response = ['valute1', 'valute2']
