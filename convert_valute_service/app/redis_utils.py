@@ -34,6 +34,7 @@ async def set_new_valutes(valutes_dict, redis: aioredis.Redis):
     
     for valute_name, item in valutes_dict.items():
         # добавляем название валюты в список названий
+        # чтобы не дублировать название в списке названий валют, проверим наличие в бд
         if valute_name in db_valutes_names:
             continue
         else:    
