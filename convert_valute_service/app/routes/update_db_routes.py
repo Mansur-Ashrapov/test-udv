@@ -6,6 +6,7 @@ package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))  
 
 
+from json import JSONDecodeError
 from aiohttp import web
 
 from app.redis_utils import get_valutes_data, get_valutes_names, set_new_valutes
@@ -32,8 +33,15 @@ async def update_db(request):
     redis = request.app['db']
     
     # получим данные из запроса
-    data = await get_valutes_from_json(request)
-    
+    try:
+        data = await get_valutes_from_json(request)
+    except JSONDecodeError:
+        data = []
+    except KeyError as e:
+        raise web.HTTPBadRequest(reason='Данные введены неправильно', text={e: 'осутствует'}, content_type='application/json')
+    except ValueError:
+        raise web.HTTPBadRequest(reason='Данные введены неправильно')
+
     # достаем merge
     try:
         merge = request.rel_url.query['merge']

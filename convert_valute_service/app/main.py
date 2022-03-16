@@ -1,4 +1,5 @@
 import sys
+import os
 from pathlib import Path
 
 file = Path(__file__).resolve()  
@@ -12,12 +13,11 @@ from aiohttp import web
 
 from app.routes.convert_valutes_routes import get_convert_valute, get_accessible_valutes_names
 from app.routes.update_db_routes import update_db
-from app.config import settings
 
 app = web.Application()
 app['db'] = aioredis.from_url(
     'redis://redis_db', 
-    password=settings.DATABASE_PASS,
+    password=os.getenv('DATABASE_PASS'),
     decode_responses=True
 )
 

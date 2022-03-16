@@ -1,6 +1,5 @@
 import sys
 from pathlib import Path
-from unittest import result
 
 file = Path(__file__).resolve()  
 package_root_directory = file.parents[1]  
@@ -9,7 +8,6 @@ sys.path.append(str(package_root_directory))
 
 import aioredis
 
-from aiohttp import web
 from typing import List
 
 
@@ -32,10 +30,14 @@ async def get_valutes_data(*args, redis: aioredis.Redis):
 
 # добавляем новые данные
 async def set_new_valutes(valutes_dict, redis: aioredis.Redis): 
+    db_valutes_names = await get_valutes_names(redis)
     
     for valute_name, item in valutes_dict.items():
-        # добавляем название валюты в список названий 
-        await redis.lpush('ValutesNames', valute_name)
+        # добавляем название валюты в список названий
+        if valute_name in db_valutes_names:
+            continue
+        else:    
+            await redis.lpush('ValutesNames', valute_name)
         # добавляем валюту 
         await redis.hmset(valute_name, item)
 

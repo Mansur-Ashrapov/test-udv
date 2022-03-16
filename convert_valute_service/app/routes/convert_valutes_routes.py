@@ -7,7 +7,6 @@ sys.path.append(str(package_root_directory))
 
 
 from aiohttp import web
-from pydantic import ValidationError
 
 from app.redis_utils import get_valutes_values, get_valutes_names
 from app.utils import convert_valute

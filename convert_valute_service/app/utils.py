@@ -5,9 +5,7 @@ file = Path(__file__).resolve()
 package_root_directory = file.parents[0]  
 sys.path.append(str(package_root_directory))  
 
-from aiohttp import web
 from typing import List
-from json import JSONDecodeError
 
 
 def convert_valute(value_from: float, value_to: float, amount) -> float:
@@ -19,20 +17,12 @@ def convert_valute(value_from: float, value_to: float, amount) -> float:
 async def get_valutes_from_json(data) -> dict:
     result = {}
 
-    try:
-        data = dict(await data.json())
-        for key, item in data.items():
-            result[key] = { 
-                'Value': float(item['Value']),
-                'ActualDate': int(item['ActualDate'])    
-            }
-    
-    except JSONDecodeError:
-        return []
-    except KeyError as e:
-        raise web.HTTPBadRequest(reason='Данные введены неправильно', text={e: 'осутствует'}, content_type='application/json')
-    except ValueError:
-        raise web.HTTPBadRequest(reason='Данные введены неправильно')
+    data = dict(await data.json())
+    for key, item in data.items():
+        result[key] = { 
+            'Value': float(item['Value']),
+            'ActualDate': int(item['ActualDate'])    
+        }
 
     return result
 
