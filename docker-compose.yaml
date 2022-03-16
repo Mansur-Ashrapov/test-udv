@@ -1,0 +1,24 @@
+version: '3.7'
+
+services:
+  redis_db:
+    image: 'redis:alpine'
+
+    command: redis-server --requirepass password
+
+    ports:
+      - 6379:6379
+
+      
+  application:
+    build: ./convert_valute_service
+    command: python3 app/main.py
+    volumes:
+      - ./convert_valute_service/:/app/
+    ports:
+      - 8080:8080
+    environment:
+      - DATABASE_PASS=password
+    depends_on:
+      - redis_db
+  
