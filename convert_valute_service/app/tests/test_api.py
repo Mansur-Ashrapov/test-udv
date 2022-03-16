@@ -31,29 +31,25 @@ async def test_post_new_valutes_succes_with_zero_merge(aiohttp_client: Any) -> N
         password='password',
         decode_responses=True
     )
-    app.route.add_route('POST', '/database', update_db)
+    app.router.add_post('/database', update_db)
 
     connector = aiohttp.TCPConnector(limit=1)
     client = await aiohttp_client(app, connector=connector)
 
-    resp = client.post('/databa')
+    data =  { 
+        "RUR": { 
+            "Value": 23.0, 
+            "ActualDate": 2 
+            }, 
+        "EUR": { 
+            "Value": 132, 
+            "ActualDate": 2 
+            }
+        }
+
+    resp = await client.post('/database?merge=0', data=data)
+    assert 200 == resp.status
 
 
-async def test_keepalive_two_requests_success(aiohttp_client: Any) -> None:
-    async def handler(request):
-        body = await request.read()
-        assert b"" == body
-        return web.Response(body=b"OK")
-
-    app = web.Application()
-    app.router.add_route("GET", "/", handler)
-
-    connector = aiohttp.TCPConnector(limit=1)
-    client = await aiohttp_client(app, connector=connector)
-
-    resp1 = await client.get("/")
-    await resp1.read()
-    resp2 = await client.get("/")
-    await resp2.read()
-
-    assert 1 == len(client._session.connector._conns)
+if __name__=='__main__':
+    pytest.main()
