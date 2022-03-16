@@ -53,7 +53,7 @@ async def update_db(request):
         if data != []:
             await set_new_valutes(data, redis=redis)
         
-        return web.json_response(data=data)
+        return web.Response(status=200)
 
     elif merge == '1':
         # получаем курсы валют из бд
@@ -68,10 +68,10 @@ async def update_db(request):
                 valutes_data_db, 
                 data
             )
-            
+
             await set_new_valutes(valutes_to_db, redis)
 
             return web.Response(text=f'1 {data}')
         elif data != []: 
             await set_new_valutes(data, redis=redis)
-            return web.json_response(data=data)
+            return web.Response(status=200)

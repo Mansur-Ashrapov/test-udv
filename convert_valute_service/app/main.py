@@ -10,7 +10,7 @@ import aioredis
 
 from aiohttp import web
 
-from app.routes.convert_valutes_routes import get_accessible_valutes_names, get_convert_valute
+from app.routes.convert_valutes_routes import get_convert_valute
 from app.routes.update_db_routes import update_db
 from app.config import settings
 
@@ -21,8 +21,8 @@ app['db'] = aioredis.from_url(
     decode_responses=True
 )
 
-app.router.add_get('/valutes', get_accessible_valutes_names)
-# app.router.add_get('/convert', get_convert_valute)
+# app.router.add_get('/valutes', get_accessible_valutes_names)
+app.router.add_get('/convert', get_convert_valute)
 app.router.add_post('/database', update_db)
 
 

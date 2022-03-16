@@ -32,7 +32,7 @@ async def get_convert_valute(request):
             amount=float(query_params['amount'])
         )
     except (KeyError, ValidationError) as e :
-        raise web.HTTPBadRequest(body=f'{query_params}')
+        raise web.HTTPBadRequest(body='Параметры запроса неправильны')
 
     # получаем значение курса каждой валюты из базы данных
     # если такой валюты не будет в бд, то выйдет ошибка ValidationError
