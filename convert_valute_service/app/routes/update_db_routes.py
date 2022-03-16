@@ -52,10 +52,7 @@ async def update_db(request):
     # если merge == 1, добавляем отсутсвующие валюты и более новые
     if merge == '0':
         # очищаем базу данных
-        valutes_names_db = await get_valutes_names(redis)
-        for name in valutes_names_db:
-            await redis.delete(name)
-        await redis.delete('ValutesNames')
+        await redis.flushall()
         # добавим новые валюты в бд
         if data != []:
             await set_new_valutes(data, redis=redis)
