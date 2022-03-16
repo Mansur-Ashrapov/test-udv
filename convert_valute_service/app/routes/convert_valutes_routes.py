@@ -37,8 +37,8 @@ async def get_convert_valute(request):
 
 
     # получаем значение курса каждой валюты из базы данных
-    # если такой валюты не будет в бд, то выйдет ошибка ValidationError
-    # так как не будет данных для класса Valute
+    # если такой валюты не будет в бд, то выйдет ошибка KeyError
+    # так как не будет поля Value
     try: 
         values = await get_valutes_values(
             data['valute_from'],
@@ -47,14 +47,9 @@ async def get_convert_valute(request):
         )
         value_from = values[0]
         value_to = values[1]
-
-    except ValidationError as e:
-        raise web.HTTPBadRequest(reason=e)
     except KeyError as e:
         raise web.HTTPNotFound(reason=e)
         
-
-
     # конвертируем сумму
     converted_amount = convert_valute(value_from, value_to, data['amount'])
 
