@@ -22,7 +22,7 @@ app['db'] = aioredis.from_url(
 )
 
 app.router.add_get('/valutes', get_accessible_valutes_names)
-app.router.add_get('/convert', get_convert_valute)
+# app.router.add_get('/convert', get_convert_valute)
 app.router.add_post('/database', update_db)
 
 

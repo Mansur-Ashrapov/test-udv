@@ -56,14 +56,14 @@ async def get_convert_valute(request):
     return web.json_response(response)
 
 
-async def get_accessible_valutes_names(request):
-    """
-    Получаем доступные для конвертации валюты
-    """
+# async def get_accessible_valutes_names(request):
+#     """
+#     Получаем доступные для конвертации валюты
+#     """
 
-    # получаем доступ к бд
-    redis = request.app['db']
+#     # получаем доступ к бд
+#     redis = request.app['db']
 
-    valutes_name = await get_valutes_names(redis=redis)
+#     valutes_name = await get_valutes_names(redis=redis)
     
-    return web.json_response(data=valutes_name)
+#     return web.json_response(data=valutes_name)
